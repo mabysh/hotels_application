@@ -4,8 +4,6 @@ import java.io.Serializable;
 import java.time.LocalDate;
 import java.util.Set;
 
-import com.vaadin.sass.internal.tree.controldirective.EachDefNode;
-
 @SuppressWarnings("serial")
 public class Hotel implements Serializable, Cloneable {
 	
