@@ -2,14 +2,16 @@ package com.demo.app.hotel;
 
 import com.vaadin.data.Binder;
 import com.vaadin.data.ValidationException;
+import com.vaadin.shared.ui.ContentMode;
 import com.vaadin.ui.*;
+import com.vaadin.ui.themes.ValoTheme;
 
 import java.util.HashSet;
 import java.util.Set;
 
 public class CategoryForm extends FormLayout {
 
-    private Label multiple = new Label("Multiple items selected. \nDelete them or create new one.");
+    private Label multiple = new Label("Multiple items selected. \nDelete them or create new one.", ContentMode.PREFORMATTED);
     private TextField name = new TextField("Name");
     private Button newBtn = new Button("New");
     private Button edit = new Button("Edit");
@@ -40,6 +42,7 @@ public class CategoryForm extends FormLayout {
             newSet.add(new Category("Default Name"));
             setCategories(newSet);
         });
+        newBtn.setStyleName(ValoTheme.BUTTON_PRIMARY);
         delete.addClickListener(e -> delete());
         edit.addClickListener(e -> save());
 
