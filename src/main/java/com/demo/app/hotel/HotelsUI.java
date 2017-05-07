@@ -12,6 +12,7 @@ import com.vaadin.icons.VaadinIcons;
 import com.vaadin.server.FontAwesome;
 import com.vaadin.server.VaadinRequest;
 import com.vaadin.server.VaadinServlet;
+import com.vaadin.shared.ui.ContentMode;
 import com.vaadin.shared.ui.ValueChangeMode;
 import com.vaadin.ui.*;
 import com.vaadin.ui.renderers.HtmlRenderer;
@@ -27,7 +28,7 @@ public class HotelsUI extends UI {
 	private VerticalLayout hotelRoot, categoryRoot;
     private HorizontalLayout gridLayout, toolbar, menuAndContent, categoryLayout;
     private CssLayout filterLayout, menu;
-    private Label description = new Label("");
+    private Panel description = new Panel("");
     private TextField filterAddress, filterName;
     private Button clearFilter, addHotel, hotelBtn, categoryBtn, createCategory;
     private HotelForm hotelForm = new HotelForm(this);
@@ -109,9 +110,9 @@ public class HotelsUI extends UI {
     			Hotel sel = (Hotel) selected.toArray()[0];
     			String desc = sel.getDescription();
     			if (desc == null || desc.isEmpty())
-    				description.setValue("No Description");
+    				description.setContent(new Label ("No Description"));
     			else
-    				description.setValue(desc);
+    				description.setContent(new Label(desc, ContentMode.PREFORMATTED));
     		}
        	});
         grid.asSingleSelect().addValueChangeListener(event -> {
@@ -150,6 +151,11 @@ public class HotelsUI extends UI {
 
 		content.setSizeFull();
 		content.addStyleName("content");
+		description.setSizeFull();
+		description.addStyleName("content");
+		description.addStyleName("borderless");
+		description.setHeight("100%");
+		description.setWidth("100%");
 
 		addHotel = new Button("Add new Hotel");
 		addHotel.addClickListener(e -> {
@@ -173,6 +179,7 @@ public class HotelsUI extends UI {
 			filterAddress.clear();
 			filterName.clear();
 		});
+
 	}
 
 	public void updateHotelList() {
