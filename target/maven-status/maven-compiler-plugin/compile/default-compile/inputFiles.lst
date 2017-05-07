@@ -1,9 +1,12 @@
 /home/mabysh/devel/eclipse/hotels_app/hotel/src/main/java/com/demo/app/hotel/OperatesFromRenderer.java
 /home/mabysh/devel/eclipse/hotels_app/hotel/src/main/java/com/demo/app/hotel/StarsRenderer.java
-/home/mabysh/devel/eclipse/hotels_app/hotel/src/main/java/com/demo/app/hotel/HotelCategory.java
 /home/mabysh/devel/eclipse/hotels_app/hotel/src/main/java/com/demo/app/hotel/HotelForm.java
 /home/mabysh/devel/eclipse/hotels_app/hotel/src/main/java/com/demo/app/hotel/HotelService.java
 /home/mabysh/devel/eclipse/hotels_app/hotel/src/main/java/com/demo/app/hotel/HotelsUI.java
+/home/mabysh/devel/eclipse/hotels_app/hotel/src/main/java/com/demo/app/hotel/CategoryAndHotelConnector.java
+/home/mabysh/devel/eclipse/hotels_app/hotel/src/main/java/com/demo/app/hotel/CategoryService.java
 /home/mabysh/devel/eclipse/hotels_app/hotel/src/main/java/com/demo/app/hotel/DateConverter.java
 /home/mabysh/devel/eclipse/hotels_app/hotel/src/main/java/com/demo/app/hotel/Hotel.java
+/home/mabysh/devel/eclipse/hotels_app/hotel/src/main/java/com/demo/app/hotel/CategoryForm.java
 /home/mabysh/devel/eclipse/hotels_app/hotel/src/main/java/com/demo/app/hotel/StarsConverter.java
+/home/mabysh/devel/eclipse/hotels_app/hotel/src/main/java/com/demo/app/hotel/Category.java

@@ -1,4 +1,13 @@
+com/demo/app/hotel/HotelService.class
 com/demo/app/hotel/Category.class
+com/demo/app/hotel/OperatesFromRenderer.class
 com/demo/app/hotel/CategoryService.class
+com/demo/app/hotel/DateConverter.class
+com/demo/app/hotel/StarsRenderer.class
 com/demo/app/hotel/CategoryAndHotelConnector.class
+com/demo/app/hotel/StarsConverter.class
+com/demo/app/hotel/HotelForm.class
+com/demo/app/hotel/HotelsUI$HotelsUIServlet.class
+com/demo/app/hotel/HotelsUI.class
+com/demo/app/hotel/Hotel.class
 com/demo/app/hotel/CategoryForm.class
