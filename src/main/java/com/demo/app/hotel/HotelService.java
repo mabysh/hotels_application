@@ -1,29 +1,22 @@
 package com.demo.app.hotel;
 
-import java.time.LocalDate;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.Comparator;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Random;
+import java.util.*;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-
-import org.w3c.css.sac.CharacterDataSelector;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 public class HotelService {
 	
-	private final String STAR = "\u2605";
-
 	private static HotelService instance;
+	private CategoryService categoryService;
 	private static final Logger LOGGER = Logger.getLogger(HotelService.class.getName());
-	private enum Flag { NAME, ADDR }
 
 	private final HashMap<Long, Hotel> hotels = new HashMap<>();
 	private long nextId = 0;
 
 	private HotelService() {
+	    categoryService = CategoryService.getInstance();
 	}
 
 	public static HotelService getInstance() {
@@ -35,78 +28,22 @@ public class HotelService {
 	}
 
 	public synchronized List<Hotel> findAll() {
-		return findAll("", "");
+		return findAll(null, null);
 	}
-	
+
+	//New filter implementation
 	public synchronized List<Hotel> findAll(String nameFilter, String addressFilter) {
-		List<Hotel> nameFilteredList = findAll(nameFilter, Flag.NAME);
-		List<Hotel> addressFilteredList = findAll(addressFilter, Flag.ADDR);
-		List<Hotel> common = new ArrayList<>(nameFilteredList); 
-		common.retainAll(addressFilteredList);
-		return common;
-	}
-
-	public synchronized List<Hotel> findAll(String stringFilter, Flag flag) {
-		ArrayList<Hotel> arrayList = new ArrayList<>();
-		boolean passesFilter = false;
-		for (Hotel hotel : hotels.values()) {
-			try {
-				switch (flag) {
-					case NAME:
-						passesFilter = (stringFilter == null || stringFilter.isEmpty())
-							|| hotel.getName().toLowerCase().contains(stringFilter.toLowerCase());
-						break;
-					case ADDR:
-						passesFilter = (stringFilter == null || stringFilter.isEmpty())
-							|| hotel.getAddress().toLowerCase().contains(stringFilter.toLowerCase());
-						break;
-				}
-				if (passesFilter) {
-					arrayList.add(hotel.clone());
-				}
-			} catch (CloneNotSupportedException ex) {
-				Logger.getLogger(HotelService.class.getName()).log(Level.SEVERE, null, ex);
-			}
+		Stream<Hotel> hotelStream = hotels.values().stream();
+		List<Hotel> result;
+		if (!(nameFilter == null || nameFilter.isEmpty())) {
+			hotelStream = hotelStream.filter(hotel -> hotel.getName().toLowerCase().contains(nameFilter.toLowerCase()));
 		}
-		Collections.sort(arrayList, new Comparator<Hotel>() {
-
-			@Override
-			public int compare(Hotel o1, Hotel o2) {
-				return (int) (o2.getId() - o1.getId());
-			}
-		});
-		return arrayList;
-	}
-
-	public synchronized List<Hotel> findAll(String stringFilter, int start, int maxresults) {
-		ArrayList<Hotel> arrayList = new ArrayList<>();
-		for (Hotel contact : hotels.values()) {
-			try {
-				boolean passesFilter = (stringFilter == null || stringFilter.isEmpty())
-						|| contact.toString().toLowerCase().contains(stringFilter.toLowerCase());
-				if (passesFilter) {
-					arrayList.add(contact.clone());
-				}
-			} catch (CloneNotSupportedException ex) {
-				Logger.getLogger(HotelService.class.getName()).log(Level.SEVERE, null, ex);
-			}
+		if (!(addressFilter == null || addressFilter.isEmpty())) {
+			hotelStream = hotelStream.filter(hotel -> hotel.getName().toLowerCase().contains(addressFilter.toLowerCase()));
 		}
-		Collections.sort(arrayList, new Comparator<Hotel>() {
-
-			@Override
-			public int compare(Hotel o1, Hotel o2) {
-				return (int) (o2.getId() - o1.getId());
-			}
-		});
-		int end = start + maxresults;
-		if (end > arrayList.size()) {
-			end = arrayList.size();
-		}
-		return arrayList.subList(start, end);
-	}
-
-	public synchronized long count() {
-		return hotels.size();
+		result = hotelStream.collect(Collectors.toList());
+		Collections.sort(result, (o1, o2) -> (int) (o2.getId() - o1.getId()));
+		return result;
 	}
 
 	public synchronized void delete(Hotel value) {
@@ -157,29 +94,23 @@ public class HotelService {
 					"Phetmeuangsam Hotel;2;https://www.booking.com/hotel/la/phetmisay.en-gb.html;Ban Phanhxai, Xumnuea, Xam Nua, 01000 Xam Nua, Laos" };
 
 			Random r = new Random(0);
+			//Retrieve all initial categories here
+			Set<Category> hcc = categoryService.findAllCategories();
 			for (String hotel : hotelData) {
 				String[] split = hotel.split(";");
 				Hotel h = new Hotel();
 				h.setName(split[0]);
-				switch(split[1]) {
-				case "1":
-					h.setRating(STAR);
-					break;
-				case "2":
-					h.setRating(STAR + STAR);
-					break;
-				case "3":
-					h.setRating(STAR + STAR + STAR);
-					break;
-				case "4":
-					h.setRating(STAR + STAR + STAR + STAR);
-					break;
+				try {
+					int rat = Integer.parseInt(split[1]);
+					h.setRating(rat);
+				} catch (NumberFormatException e) {
+					Logger.getLogger(HotelService.class.getName()).log(Level.SEVERE, null, e);
 				}
 				h.setUrl(split[2]);
 				h.setAddress(split[3]);
-				h.setCategory(HotelCategory.values()[r.nextInt(HotelCategory.values().length)]);
-				int daysOld = 0 - r.nextInt(365 * 30);
-				h.setOperatesFrom((LocalDate.now().plusDays(daysOld)));
+				h.setCategory((Category)hcc.toArray()[r.nextInt(hcc.size())]);
+				int daysOld = r.nextInt(365 * 30);
+				h.setOperatesFrom((long) daysOld);
 				save(h);
 			}
 		}

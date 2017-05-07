@@ -12501,3 +12501,34 @@ div.v-layout.v-horizontal.v-widget {
 	width: 19px;
 	overflow: hidden;
 }
+
+.mytheme .content {
+	border-radius: 0px;
+	background: #fafafa;
+}
+
+.mytheme .menu {
+	background: #333333;
+	color: text-color($vaadin-primary-color);
+	position: fixed;
+	left: 0;
+	width: 7%;
+}
+
+.mytheme .menu .v-button {
+	display: block;
+}
+
+.mytheme .menu .menubutton {
+	color: white;
+}
+
+.mytheme .menu .FontAwesome {
+	font-size: 30px;
+}
+
+.mytheme .menu .menubutton_clicked {
+	color: #333333;
+	border-radius: 0px;
+	background: #fafafa;
+}

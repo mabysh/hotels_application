@@ -1,15 +1,9 @@
 package com.demo.app.hotel;
 
 import java.io.Serializable;
-import java.time.LocalDate;
-import java.util.Set;
-
-import com.vaadin.sass.internal.tree.controldirective.EachDefNode;
 
 @SuppressWarnings("serial")
 public class Hotel implements Serializable, Cloneable {
-	
-	private final String STAR = "\u2605";
 	
 	private Long id;
 
@@ -17,12 +11,12 @@ public class Hotel implements Serializable, Cloneable {
 
 	private String address = "";
 
-	private String rating;
+	private Integer rating;
 
-	private LocalDate operatesFrom;
+	private Long operatesFrom;
 
-	private HotelCategory category;
-	
+	private Category category;
+
 	private String url;
 	
 	private String description = "";
@@ -113,30 +107,27 @@ public class Hotel implements Serializable, Cloneable {
 		this.address = address;
 	}
 
-	public String getRating() {
-		if (rating != null) {
+	public Integer getRating() {
 			return rating;
-		} else
-			return "0";
 	}
 
-	public void setRating(String rating) {
+	public void setRating(Integer rating) {
 		this.rating = rating;
 	}
 
-	public LocalDate getOperatesFrom() {
+	public Long getOperatesFrom() {
 		return operatesFrom;
 	}
 
-	public void setOperatesFrom(LocalDate operatesFrom) {
+	public void setOperatesFrom(Long operatesFrom) {
 		this.operatesFrom = operatesFrom;
 	}
 
-	public HotelCategory getCategory() {
+	public Category getCategory() {
 		return category;
 	}
 
-	public void setCategory(HotelCategory category) {
+	public void setCategory(Category category) {
 		this.category = category;
 	}	
 
@@ -148,7 +139,7 @@ public class Hotel implements Serializable, Cloneable {
 		this.url = url;
 	}
 	
-	public Hotel(Long id, String name, String address, String rating, LocalDate operatesFrom, HotelCategory category, String url) {
+	public Hotel(Long id, String name, String address, Integer rating, Long operatesFrom, Category category, String url) {
 		super();
 		this.id = id;
 		this.name = name;

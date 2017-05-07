@@ -1,1 +1,4 @@
-com/demo/app/hotel/HotelService$3.class
+com/demo/app/hotel/Category.class
+com/demo/app/hotel/CategoryService.class
+com/demo/app/hotel/CategoryAndHotelConnector.class
+com/demo/app/hotel/CategoryForm.class
