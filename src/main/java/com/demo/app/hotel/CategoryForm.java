@@ -2,6 +2,7 @@ package com.demo.app.hotel;
 
 import com.vaadin.data.Binder;
 import com.vaadin.data.ValidationException;
+import com.vaadin.data.validator.RegexpValidator;
 import com.vaadin.shared.ui.ContentMode;
 import com.vaadin.ui.*;
 import com.vaadin.ui.themes.ValoTheme;
@@ -34,6 +35,7 @@ public class CategoryForm extends FormLayout {
         name.setRequiredIndicatorVisible(true);
         name.setDescription("Category Name");
         binder.forField(name).asRequired("Enter category name to proceed")
+                .withValidator(new RegexpValidator("Incorrect name!", "[0-9a-zA-Z ]*+"))
                 .bind(Category::getName, Category::setName);
 
         newBtn.addClickListener(e -> {
@@ -89,7 +91,6 @@ public class CategoryForm extends FormLayout {
                 categoryService.save(hc);
             }
         } catch (ValidationException ex) {
-            setVisible(false);
             ui.clearGridSelection();
             Notification.show("Category could not be saved. Please, enter valid name");
             return;

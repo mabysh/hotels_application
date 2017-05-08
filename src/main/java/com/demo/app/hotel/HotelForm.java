@@ -2,6 +2,7 @@ package com.demo.app.hotel;
 
 import com.vaadin.data.Binder;
 import com.vaadin.data.ValidationException;
+import com.vaadin.data.validator.RegexpValidator;
 import com.vaadin.event.ShortcutAction.KeyCode;
 import com.vaadin.ui.*;
 import com.vaadin.ui.themes.ValoTheme;
@@ -74,15 +75,19 @@ public class HotelForm extends FormLayout {
 				.bind(Hotel::getRating, Hotel::setRating);
 	    binder.forField(name)
 				.asRequired("Enter a name to proceed.")
+				.withValidator(new RegexpValidator("Incorrect name!", "[0-9a-zA-Z ]*+"))
 				.bind(Hotel::getName, Hotel::setName);
 		binder.forField(address)
 				.asRequired("Enter an address to proceed.")
+				.withValidator(new RegexpValidator("Incorrect address!", "[0-9a-zA-Z,. /\\-]*+"))
 				.bind(Hotel::getAddress, Hotel::setAddress);
 		binder.forField(category)
 				.asRequired("Please, choose category")
 				.bind(Hotel::getCategory, Hotel::setCategory);
 		binder.forField(url)
 				.asRequired("Enter an url to Booking.com.")
+				.withValidator(new RegexpValidator("Incorrect url!",
+						"^(https://www.booking.com).*|^(www.booking.com).*|^(booking.com).*"))
 				.bind(Hotel::getUrl, Hotel::setUrl);
 		binder.forField(description).bind(Hotel::getDescription, Hotel::setDescription);
 		binder.forField(operatesFrom).withConverter(new DateConverter())
@@ -115,6 +120,7 @@ public class HotelForm extends FormLayout {
 		} catch (ValidationException e ) {
 			Notification.show("Hotel could not be saved, " +
         "please check error messages for each field.");
+			return;												//do not hide the form on invalid input
 		}
 		ui.updateHotelList();
 		ui.updateCategoryList();
