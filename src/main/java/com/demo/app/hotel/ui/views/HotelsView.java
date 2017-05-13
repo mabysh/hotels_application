@@ -151,7 +151,7 @@ public class HotelsView extends VerticalLayout implements View {
 
 
     @Override
-    public void enter(ViewChangeListener.ViewChangeEvent event) {
+    public void enter(ViewChangeListener.ViewChangeEvent event) { 	//update info on change view
 	    updateHotelList();
 	    hotelForm.updateAvailableCategories();
     }

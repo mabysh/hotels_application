@@ -45,7 +45,7 @@ public class HotelForm extends FormLayout {
 
 		rating.setItems(RATING_ITEMS);
 		category.setItems(categories);		//initial set. see updateAvailableCategories() method;
-		category.setItemCaptionGenerator(Category::getName);
+		category.setItemCaptionGenerator(Category::getName);	//getName() instead of toString() is the source;
 		save.setStyleName(ValoTheme.BUTTON_PRIMARY);
 		save.setClickShortcut(KeyCode.ENTER);
 

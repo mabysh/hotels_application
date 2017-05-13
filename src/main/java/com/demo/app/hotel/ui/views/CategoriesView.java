@@ -55,10 +55,15 @@ public class CategoriesView extends VerticalLayout implements View {
         });
         editCategory = new Button("Edit");
         editCategory.setClickShortcut(ShortcutAction.KeyCode.ENTER);
-        editCategory.addClickListener(e -> categoryForm.save());
+        editCategory.addClickListener(e -> {
+            categoryForm.save();
+            editCategory.setVisible(false);
+        });
         deleteCategory = new Button("Delete");
         deleteCategory.addClickListener(e -> categoryForm.delete());
 		categoryForm.setVisible(false);
+        editCategory.setVisible(false);
+        deleteCategory.setVisible(false);
 	}
 
 	private void setUpCategoryGrid() {
@@ -84,9 +89,6 @@ public class CategoriesView extends VerticalLayout implements View {
                 deleteCategory.setVisible(true);
 		        if (selected.size() == 1) {
 		            editCategory.setCaption("Edit");
-		           // if (!selected.toArray(new Category[1])[0].isPersisted()) {  //in case of new category,
-                    //    editCategory.setCaption("Save");                        //change button caption
-                    //}
                     editCategory.setVisible(true);
                 } else {
                     editCategory.setVisible(false);
@@ -128,7 +130,7 @@ public class CategoriesView extends VerticalLayout implements View {
     }
 
     @Override
-    public void enter(ViewChangeListener.ViewChangeEvent event) {
+    public void enter(ViewChangeListener.ViewChangeEvent event) {   //update info on view change
         updateCategoryList();
     }
 }

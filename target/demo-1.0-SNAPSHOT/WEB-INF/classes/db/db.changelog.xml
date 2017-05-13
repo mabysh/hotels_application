@@ -45,7 +45,7 @@
 	<!-- Add description column -->
 	<changeSet id="description_create" author="mabysh">
 		<addColumn tableName="HOTEL">
-			<column name="DESCRIPTION" type="VARCHAR(255)" />
+			<column name="DESCRIPTION" type="TEXT" />
 		</addColumn>
 	</changeSet>
 	<!-- Create category table -->

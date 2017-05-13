@@ -8,9 +8,6 @@ import com.vaadin.data.ValidationException;
 import com.vaadin.data.validator.RegexpValidator;
 import com.vaadin.shared.ui.ContentMode;
 import com.vaadin.ui.*;
-import com.vaadin.ui.themes.ValoTheme;
-
-import java.util.HashSet;
 import java.util.Set;
 
 public class CategoryForm extends FormLayout {
@@ -60,7 +57,7 @@ public class CategoryForm extends FormLayout {
         for (Category hc : categories) {
             service.delete(hc);
         }
-        view.updateCategoryList();        // <-- this method updates category lists both in grid and Hotel Form on delete;
+        view.updateCategoryList();        // <-- this method updates category list in grid on delete;
         setVisible(false);
         Notification.show("Selected categories has been deleted");
     }
@@ -76,7 +73,7 @@ public class CategoryForm extends FormLayout {
             Notification.show("Category could not be saved. Please, enter valid name");
             return;
         }
-       view.updateCategoryList();        // <-- this method updates category lists both in grid and Hotel Form on save
+       view.updateCategoryList();        // <-- this method updates category list in grid on save
         setVisible(false);
         Notification.show("Categories has been updated");
     }
