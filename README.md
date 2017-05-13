@@ -13,8 +13,9 @@ Deployment how to:
 1. Create MySql database named demo_hotels
 2. Create mysql user (Name: demo, Pass: demo) and grant full privileges.
 3. git clone -b task3 https://github.com/mabysh/hotels_application
-4. mvn liquibase:dropAll
-5. mvn liquibase:update
-6. mvn jetty:run
+4. mvn clean install
+5. mvn liquibase:dropAll
+6. mvn liquibase:update
+7. mvn jetty:run
 
-In your brouser: localhost:8080
+In your browser: localhost:8080
