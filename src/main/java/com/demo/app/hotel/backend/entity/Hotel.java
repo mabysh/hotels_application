@@ -1,4 +1,4 @@
-package com.demo.app.hotel.backend;
+package com.demo.app.hotel.backend.entity;
 
 
 import javax.persistence.*;
@@ -28,7 +28,7 @@ public class Hotel extends AbstractEntity {
 	@Column(name = "OPERATES_FROM")
 	private Long operatesFrom;
 
-	@ManyToOne(fetch = FetchType.EAGER)
+	@ManyToOne
 	@JoinColumn(name = "CATEGORY_ID", foreignKey = @ForeignKey(name = "fk_hotel_category"))
 	private Category category;
 	@NotNull
@@ -84,6 +84,8 @@ public class Hotel extends AbstractEntity {
 	public Category getCategory() {
 		return category;
 	}
+
+	public String getCategoryName() { return category.getName(); }
 
 	public void setCategory(Category category) {
 		this.category = category;

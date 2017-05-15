@@ -1,7 +1,7 @@
 package com.demo.app.hotel.ui.views;
 
-import com.demo.app.hotel.backend.ApplicationService;
-import com.demo.app.hotel.backend.Hotel;
+import com.demo.app.hotel.backend.service.ApplicationServiceImpl;
+import com.demo.app.hotel.backend.entity.Hotel;
 import com.demo.app.hotel.ui.forms.HotelForm;
 import com.demo.app.hotel.ui.representation.CategoryRenderer;
 import com.demo.app.hotel.ui.representation.OperatesFromRenderer;
@@ -29,7 +29,7 @@ public class HotelsView extends VerticalLayout implements View {
 
     public static final String VIEW_NAME = "hotels";
 
-	private ApplicationService service = ApplicationService.getInstance();
+	private ApplicationServiceImpl service = ApplicationServiceImpl.getInstance();
 
 	private Button addHotel;
 	private TextField filterAddress;
@@ -123,12 +123,11 @@ public class HotelsView extends VerticalLayout implements View {
 		title.addStyleName("h1");
 		title.addStyleName("bold");
 		gridLayout = new HorizontalLayout();
-        gridLayout.setSizeFull();
-		grid.setWidth("100%");
+        gridLayout.setWidth("100%");
         gridLayout.setHeight("500");
         gridLayout.addComponents(grid, hotelForm);
-        gridLayout.setExpandRatio(hotelForm,1);
-        gridLayout.setExpandRatio(grid, 4);
+        gridLayout.setExpandRatio(hotelForm,10);
+        gridLayout.setExpandRatio(grid, 35);
 	    filterLayout = new CssLayout();
 		filterLayout.addComponents(filterName, filterAddress, clearFilter);
 		filterLayout.setStyleName(ValoTheme.LAYOUT_COMPONENT_GROUP);
@@ -144,7 +143,7 @@ public class HotelsView extends VerticalLayout implements View {
 		String addrFilter = filterAddress.getValue().toLowerCase();
 		String nameFilter = filterName.getValue().toLowerCase();
 
-		List<Hotel> hotelList = (List<Hotel>) service.findAll(nameFilter, addrFilter, Hotel.class);
+		List<Hotel> hotelList = service.findAllHotels(nameFilter, addrFilter);
 
         grid.setItems(hotelList);
 	}

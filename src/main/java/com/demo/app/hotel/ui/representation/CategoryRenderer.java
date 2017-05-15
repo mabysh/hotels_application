@@ -4,7 +4,7 @@ package com.demo.app.hotel.ui.representation;
  * This Renderer takes category id as input and returns category name as output.
  */
 
-import com.demo.app.hotel.backend.Category;
+import com.demo.app.hotel.backend.entity.Category;
 import com.vaadin.ui.renderers.TextRenderer;
 import elemental.json.Json;
 import elemental.json.JsonValue;

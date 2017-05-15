@@ -1,13 +1,7 @@
 package com.demo.app.hotel.ui;
 
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
-
-import javax.servlet.annotation.WebListener;
 import javax.servlet.annotation.WebServlet;
 
-import com.demo.app.hotel.backend.*;
 import com.demo.app.hotel.ui.views.CategoriesView;
 import com.demo.app.hotel.ui.views.HotelsView;
 import com.vaadin.annotations.Theme;
@@ -17,7 +11,6 @@ import com.vaadin.navigator.View;
 import com.vaadin.navigator.ViewDisplay;
 import com.vaadin.server.FontAwesome;
 import com.vaadin.server.VaadinRequest;
-import com.vaadin.spring.annotation.EnableVaadin;
 import com.vaadin.spring.annotation.SpringUI;
 import com.vaadin.spring.annotation.SpringViewDisplay;
 import com.vaadin.spring.navigator.SpringViewProvider;
@@ -25,16 +18,12 @@ import com.vaadin.spring.server.SpringVaadinServlet;
 import com.vaadin.ui.*;
 import com.vaadin.ui.themes.ValoTheme;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.context.annotation.Bean;
-import org.springframework.context.annotation.Configuration;
-import org.springframework.web.context.ContextLoaderListener;
 
 @Theme("mytheme")
 @SpringUI
 @SpringViewDisplay
 public class HotelsUI extends UI implements ViewDisplay {
 
-    private ApplicationService service = ApplicationService.getInstance();
     private HorizontalLayout menuAndContent;
     private CssLayout menu;
     private Button hotelBtn, categoryBtn;
@@ -42,15 +31,6 @@ public class HotelsUI extends UI implements ViewDisplay {
 
     @Autowired
 	SpringViewProvider viewProvider;
-
-	@WebListener
-	public static class HotelsContextLoaderListener extends ContextLoaderListener { }
-
-	@Configuration
-	@EnableVaadin
-	public static class HotelsConfiguration {
-
-	}
 
     @Override
     protected void init(VaadinRequest vaadinRequest) {

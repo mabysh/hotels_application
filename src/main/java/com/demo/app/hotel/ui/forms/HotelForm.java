@@ -1,6 +1,8 @@
 package com.demo.app.hotel.ui.forms;
 
-import com.demo.app.hotel.backend.*;
+import com.demo.app.hotel.backend.entity.Category;
+import com.demo.app.hotel.backend.entity.Hotel;
+import com.demo.app.hotel.backend.service.ApplicationServiceImpl;
 import com.demo.app.hotel.ui.representation.DateConverter;
 import com.demo.app.hotel.ui.representation.StarsConverter;
 import com.demo.app.hotel.ui.views.HotelsView;
@@ -25,8 +27,8 @@ public class HotelForm extends FormLayout {
 	private Button save = new Button("Save");
 	private Button delete = new Button("Delete");
 
-	private ApplicationService service = ApplicationService.getInstance();
-	private List<Category> categories = (List<Category>) service.findAll(Category.class);
+	private ApplicationServiceImpl service = ApplicationServiceImpl.getInstance();
+	private List<Category> categories = service.findAllCategories();
 	private Hotel hotel;
 	private HotelsView view;
 	private Binder<Hotel> binder = new Binder<>(Hotel.class);
@@ -125,13 +127,12 @@ public class HotelForm extends FormLayout {
 			return;												//do not hide the form on invalid input
 		}
 		view.updateHotelList();
-		//ui.updateCategoryList();
 		setVisible(false);
 		Notification.show("Hotels has been updated");
 	}
 
 	public void updateAvailableCategories() {                   //this method aimed to update list of available
-        this.categories = (List<Category>) service.findAll(Category.class);
+        this.categories = service.findAllCategories();
         category.setItems(categories);
     }
 }

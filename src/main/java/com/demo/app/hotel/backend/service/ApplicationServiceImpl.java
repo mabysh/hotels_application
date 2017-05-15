@@ -1,4 +1,13 @@
-package com.demo.app.hotel.backend;
+package com.demo.app.hotel.backend.service;
+
+import com.demo.app.hotel.backend.dao.CategoryDao;
+import com.demo.app.hotel.backend.dao.CategoryDaoImpl;
+import com.demo.app.hotel.backend.dao.HotelDao;
+import com.demo.app.hotel.backend.dao.HotelDaoImpl;
+import com.demo.app.hotel.backend.entity.AbstractEntity;
+import com.demo.app.hotel.backend.entity.Category;
+import com.demo.app.hotel.backend.entity.Hotel;
+import org.springframework.stereotype.Service;
 
 import javax.persistence.EntityManager;
 import javax.persistence.EntityManagerFactory;
@@ -8,89 +17,83 @@ import java.util.Random;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
-public class ApplicationService {
+@Service(value = "applicationService")
+public class ApplicationServiceImpl implements ApplicationService{
 
-    private static ApplicationService instance;
+
+    private static ApplicationServiceImpl instance;
 
     private EntityManagerFactory emf = Persistence.createEntityManagerFactory("demo_hotels");
     private EntityManager entityManager = emf.createEntityManager();
 
-    public static ApplicationService getInstance() {
+    HotelDao hotelDao = new HotelDaoImpl(entityManager);
+    CategoryDao categoryDao = new CategoryDaoImpl(entityManager);
+
+    private ApplicationServiceImpl() { }
+
+    public static ApplicationServiceImpl getInstance() {
         if (instance == null) {
-            instance = new ApplicationService();
+            instance = new ApplicationServiceImpl();
             instance.ensureTestData();
         }
         return instance;
     }
 
+    @Override
     public synchronized void save(AbstractEntity entity) {
-        entityManager.getTransaction().begin();
-        entityManager.merge(entity);
-        entityManager.getTransaction().commit();
+        if (entity.getClass().equals(Hotel.class)) {
+            hotelDao.save((Hotel)entity);
+        } else {
+            categoryDao.save((Category)entity);
+        }
     }
 
+    @Override
     public synchronized void delete(AbstractEntity entity) {
-        entityManager.getTransaction().begin();
-        entityManager.remove(entity);
-        entityManager.getTransaction().commit();
+        if (entity.getClass().equals(Hotel.class)) {
+            hotelDao.delete((Hotel)entity);
+        } else {
+            categoryDao.delete((Category)entity);
+        }
     }
 
     public List<? extends AbstractEntity> findAll(Class<? extends AbstractEntity> theClass) {
-        return findAll(null, null, theClass);
-    }
-
-    public List<? extends AbstractEntity> findAll(String nameFilter, String addressFilter,
-                                        Class<? extends AbstractEntity> theClass) {
-        if((nameFilter == null || nameFilter.isEmpty()) && (addressFilter == null || addressFilter.isEmpty())) {
-            if (theClass.equals(Hotel.class)) {
-				List<Hotel> list = entityManager.createQuery("FROM Hotel", Hotel.class).getResultList();
-                refresh(list);
-                return list;
-            } else {
-				return entityManager.createQuery("FROM Category", Category.class).getResultList();
-            }
+        if (theClass.getClass().equals(Hotel.class)) {
+            return findAllHotels(null, null);
         } else {
-            List<Hotel> list = entityManager.createNamedQuery("Hotel.filter", Hotel.class).
-					setParameter("nameFilter", "%" + nameFilter + "%").
-					setParameter("addressFilter", "%" + addressFilter + "%").
-					getResultList();
-            refresh(list);
-            return list;
+            return findAllCategories();
         }
     }
 
-    private synchronized List<Hotel> findByCategory(Category category) {
-		return entityManager.createQuery("SELECT h from Hotel h where h.category=:category", Hotel.class)
-				.setParameter("category", category).getResultList();
+    @Override
+    public List<Hotel> findAllHotels(String nameFilter, String addressFilter) {
+		return hotelDao.findAll(nameFilter, addressFilter);
+    }
+
+    @Override
+	public List<Category> findAllCategories() {
+    	return categoryDao.findAll();
 	}
 
-	private void refresh(List<Hotel> list) {
-        for (Hotel h : list ) {
-            entityManager.getTransaction().begin();
-            entityManager.refresh(h);
-            entityManager.getTransaction().commit();
-        }
-    }
+	public Hotel getHighestRatingHotel(Category category) {     //returns highest rating hotel for a category
 
-    public Hotel getHighestRatingHotel(Category category) {     //returns highest rating hotel for a category
+         List<Hotel> filtered = hotelDao.findByCategory(category);
+         if (filtered.isEmpty())         //no hotels
+             return new Hotel();
+         else {
+             Hotel highest = filtered.get(0);
+             for (Hotel hotel : filtered) {
+                 if (hotel.getRating() > highest.getRating()) {
+                     highest = hotel;
+                 }
+             }
+         return highest;
+         }
 
-        List<Hotel> filtered = findByCategory(category);
-        if (filtered.isEmpty())         //no hotels
-            return new Hotel();
-        else {
-            Hotel highest = filtered.get(0);
-            for (Hotel hotel : filtered) {
-                if (hotel.getRating() > highest.getRating()) {
-                    highest = hotel;
-                }
-            }
-        return highest;
-        }
+     }
 
-    }
-
-    private void ensureTestData() {
-		if (findAll(Hotel.class).isEmpty()) {
+    public void ensureTestData() {
+		if (findAll(Hotel.class).isEmpty() || findAll(Hotel.class) == null) {
 			final String[] hotelData = new String[] {
 					"3 Nagas Luang Prabang - MGallery by Sofitel;4;https://www.booking.com/hotel/la/3-nagas-luang-prabang-by-accor.en-gb.html;Vat Nong Village, Sakkaline Road, Democratic Republic Lao, 06000 Luang Prabang, Laos;",
 					"Abby Boutique Guesthouse;1;https://www.booking.com/hotel/la/abby-boutique-guesthouse.en-gb.html;Ban Sawang , 01000 Vang Vieng, Laos",
@@ -124,7 +127,7 @@ public class ApplicationService {
 
 			Random r = new Random(0);
 			//Retrieve all initial categories here
-			List<Category> categories = (List<Category>) findAll(Category.class);
+			List<Category> categories = findAllCategories();
 			for (String hotel : hotelData) {
 				String[] split = hotel.split(";");
 				Hotel h = new Hotel();
@@ -133,7 +136,7 @@ public class ApplicationService {
 					int rat = Integer.parseInt(split[1]);
 					h.setRating(rat);
 				} catch (NumberFormatException e) {
-					Logger.getLogger(ApplicationService.class.getName()).log(Level.SEVERE, null, e);
+					Logger.getLogger(ApplicationServiceImpl.class.getName()).log(Level.SEVERE, null, e);
 				}
 				h.setUrl(split[2]);
 				h.setAddress(split[3]);

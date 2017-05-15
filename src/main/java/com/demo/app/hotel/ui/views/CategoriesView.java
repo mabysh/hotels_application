@@ -1,8 +1,8 @@
 package com.demo.app.hotel.ui.views;
 
-import com.demo.app.hotel.backend.ApplicationService;
-import com.demo.app.hotel.backend.Category;
-import com.demo.app.hotel.backend.Hotel;
+import com.demo.app.hotel.backend.service.ApplicationServiceImpl;
+import com.demo.app.hotel.backend.entity.Category;
+import com.demo.app.hotel.backend.entity.Hotel;
 import com.demo.app.hotel.ui.forms.CategoryForm;
 import com.vaadin.event.ShortcutAction;
 import com.vaadin.navigator.View;
@@ -32,7 +32,7 @@ public class CategoriesView extends VerticalLayout implements View {
 
     private CategoryForm categoryForm = new CategoryForm(this);
 
-    private ApplicationService service = ApplicationService.getInstance();
+    private ApplicationServiceImpl service = ApplicationServiceImpl.getInstance();
 
     @PostConstruct
     void init() {
@@ -121,7 +121,7 @@ public class CategoriesView extends VerticalLayout implements View {
 	}
 
 	public void updateCategoryList() {
-        List<Category> categories = (List<Category>) service.findAll(Category.class);
+        List<Category> categories = service.findAllCategories();
         categoryGrid.setItems(categories);
 	}
 

@@ -1,7 +1,7 @@
 package com.demo.app.hotel.ui.forms;
 
-import com.demo.app.hotel.backend.ApplicationService;
-import com.demo.app.hotel.backend.Category;
+import com.demo.app.hotel.backend.service.ApplicationServiceImpl;
+import com.demo.app.hotel.backend.entity.Category;
 import com.demo.app.hotel.ui.views.CategoriesView;
 import com.vaadin.data.Binder;
 import com.vaadin.data.ValidationException;
@@ -15,7 +15,7 @@ public class CategoryForm extends FormLayout {
     private Label multiple = new Label("Multiple items selected. \nDelete them or create new one.", ContentMode.PREFORMATTED);
     private TextField name = new TextField("Name");
 
-    private ApplicationService service = ApplicationService.getInstance();
+    private ApplicationServiceImpl service = ApplicationServiceImpl.getInstance();
     private Set<Category> categories;
     private CategoriesView view;
     private Binder<Category> binder = new Binder<>(Category.class);

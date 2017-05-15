@@ -1,4 +1,4 @@
-package com.demo.app.hotel.backend;
+package com.demo.app.hotel.backend.entity;
 
 import javax.persistence.*;
 import javax.validation.constraints.NotNull;
