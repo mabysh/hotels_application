@@ -2,6 +2,7 @@ package com.demo.app.hotel.ui.views;
 
 import com.demo.app.hotel.backend.service.ApplicationServiceImpl;
 import com.demo.app.hotel.backend.entity.Hotel;
+import com.demo.app.hotel.ui.forms.BulkForm;
 import com.demo.app.hotel.ui.forms.HotelForm;
 import com.demo.app.hotel.ui.representation.CategoryRenderer;
 import com.demo.app.hotel.ui.representation.OperatesFromRenderer;
@@ -19,6 +20,7 @@ import com.vaadin.ui.renderers.HtmlRenderer;
 import com.vaadin.ui.themes.ValoTheme;
 
 import javax.annotation.PostConstruct;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
@@ -31,7 +33,7 @@ public class HotelsView extends VerticalLayout implements View {
 
 	private ApplicationServiceImpl service = ApplicationServiceImpl.getInstance();
 
-	private Button addHotel;
+	private Button addHotel, deleteHotel, saveHotel, bulk;
 	private TextField filterAddress;
 	private Grid<Hotel> grid = new Grid<>(Hotel.class);
 	private CssLayout filterLayout;
@@ -42,6 +44,11 @@ public class HotelsView extends VerticalLayout implements View {
 	private TextField filterName;
 	private Button clearFilter;
 	private Panel description = new Panel("");
+	private BulkForm popupContent = new BulkForm(this);
+	private PopupView popup = new PopupView(null, popupContent);
+	private final Label multiple = new Label("Multiple hotels selected. " +
+			"Available options: create new hotel, delete selected, bulk update selected.");
+	private final Label noDesc = new Label("No Description");
 
 	@PostConstruct
     void init() {
@@ -59,11 +66,35 @@ public class HotelsView extends VerticalLayout implements View {
 		description.setHeight("100%");
 		description.setWidth("100%");
 
-		addHotel = new Button("Add new Hotel");
+		addHotel = new Button(VaadinIcons.PLUS);
+		addHotel.setDescription("Create new hotel");
 		addHotel.addClickListener(e -> {
-			grid.asSingleSelect().clear();
-			hotelForm.setHotel(new Hotel());
+			grid.asMultiSelect().clear();
+			Set<Hotel> newSet = new HashSet<>();
+			newSet.add(new Hotel());
+			hotelForm.setHotels(newSet);
+			manageButtons(true, true, false, false);
 		});
+		deleteHotel = new Button(VaadinIcons.TRASH);
+		deleteHotel.setDescription("Delete selected hotels");
+		deleteHotel.addClickListener(e -> hotelForm.delete());
+		saveHotel = new Button(VaadinIcons.CHECK);
+		saveHotel.setDescription("Save/Edit single hotel");
+		saveHotel.addClickListener(e -> hotelForm.save());
+
+		bulk = new Button("Bulk Update");
+		bulk.setDescription("Bulk Update");
+		bulk.addClickListener(e -> popup.setPopupVisible(true));
+
+		popup.setHideOnMouseOut(false);
+		popup.addPopupVisibilityListener(e -> {
+			if (e.isPopupVisible()) {
+				manageButtons(false, false, false, false);
+			} else {
+				grid.asMultiSelect().clear();
+			}
+		});
+		popup.setSizeFull();
 
 		filterAddress = new TextField();
 		filterAddress.setPlaceholder("filter by address");
@@ -81,7 +112,14 @@ public class HotelsView extends VerticalLayout implements View {
 			filterName.clear();
 		});
 
+		hotelForm.setSizeUndefined();
 		hotelForm.setVisible(false);
+		manageButtons(true, false, false, false);
+	}
+
+	public void hidePopup() {		//used from BulkUpdate to hide popup on button click
+		popup.setPopupVisible(false);
+		popupContent.setHotels(new HashSet<Hotel>());
 	}
 
 	private void setUpHotelGrid() {
@@ -93,28 +131,40 @@ public class HotelsView extends VerticalLayout implements View {
 		grid.getColumn("operatesFrom").setRenderer(new OperatesFromRenderer()).setCaption("Operates for");
         grid.addColumn(hotel -> "<a href='" + hotel.getUrl() + "' target='_blank'>View at Booking.com</a>",
         		new HtmlRenderer()).setCaption("Link to Booking.com");
+        grid.setSelectionMode(Grid.SelectionMode.MULTI);
         grid.setSizeFull();
         updateHotelList();
-        grid.addSelectionListener(e -> {
+        grid.asMultiSelect().addSelectionListener(e -> {
+            if (e == null) {
+            	hotelForm.setVisible(false);
+            	multiple.setVisible(false);
+         	   	manageButtons(true,false, false, false);
+            	return;
+			}
     		Set<Hotel> selected = e.getAllSelectedItems();
-    		if (!selected.isEmpty()) {
-    			Hotel sel = (Hotel) selected.toArray()[0];
-    			String desc = sel.getDescription();
+			hotelForm.setHotels(selected);
+			manageForms(selected);
+       	});
+	}
+
+	private void manageForms(Set<Hotel> selected) {
+		int size = selected.size();
+		manageButtons(true, size == 1, size > 0, size > 1);
+		if (size == 1) {
+			Hotel sel = selected.iterator().next();
+			String desc = sel.getDescription();
     			if (desc == null || desc.isEmpty())
-    				description.setContent(new Label ("No Description"));
+    				description.setContent(noDesc);
     			else
     				description.setContent(new Label(desc, ContentMode.PREFORMATTED));
-    		}
-       	});
-        grid.asSingleSelect().addValueChangeListener(event -> {
-        	if (event.getValue() == null) {
-        		hotelForm.setVisible(false);
-        	} else {
-        		Hotel h = event.getValue();
-        		hotelForm.setHotel(h);
-        	}
-        });
-
+		} else if (size == 0){
+			description.setContent(noDesc);
+			hotelForm.setVisible(false);
+		} else {
+		    popupContent.setHotels(selected);
+			hotelForm.setVisible(false);
+			description.setContent(multiple);
+		}
 	}
 
 	private void setUpHotelLayouts() {
@@ -124,18 +174,18 @@ public class HotelsView extends VerticalLayout implements View {
 		title.addStyleName("bold");
 		gridLayout = new HorizontalLayout();
         gridLayout.setWidth("100%");
-        gridLayout.setHeight("500");
+        gridLayout.setHeight("600");
         gridLayout.addComponents(grid, hotelForm);
-        gridLayout.setExpandRatio(hotelForm,10);
         gridLayout.setExpandRatio(grid, 35);
 	    filterLayout = new CssLayout();
 		filterLayout.addComponents(filterName, filterAddress, clearFilter);
 		filterLayout.setStyleName(ValoTheme.LAYOUT_COMPONENT_GROUP);
 
-		toolbar = new HorizontalLayout(filterLayout, addHotel);
+		toolbar = new HorizontalLayout(filterLayout, addHotel, saveHotel, deleteHotel, bulk);
 
 		hotelRoot = new VerticalLayout();
-		hotelRoot.addComponents(title, toolbar, gridLayout, description);
+		hotelRoot.addComponents(title, toolbar, popup, gridLayout, description);
+		hotelRoot.setComponentAlignment(popup, Alignment.MIDDLE_CENTER);
 		hotelRoot.setWidth("100%");
 	}
 
@@ -147,6 +197,13 @@ public class HotelsView extends VerticalLayout implements View {
 
         grid.setItems(hotelList);
 	}
+
+	private void manageButtons(boolean addButton, boolean editButton, boolean deleteButton, boolean bulkEnabled) {
+		addHotel.setEnabled(addButton);
+        saveHotel.setEnabled(editButton);
+        deleteHotel.setEnabled(deleteButton);
+        bulk.setEnabled(bulkEnabled);
+    }
 
 
     @Override

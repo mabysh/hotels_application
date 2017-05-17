@@ -5,6 +5,7 @@ import com.demo.app.hotel.backend.entity.Category;
 import com.demo.app.hotel.backend.entity.Hotel;
 import com.demo.app.hotel.ui.forms.CategoryForm;
 import com.vaadin.event.ShortcutAction;
+import com.vaadin.icons.VaadinIcons;
 import com.vaadin.navigator.View;
 import com.vaadin.navigator.ViewChangeListener;
 import com.vaadin.spring.annotation.SpringComponent;
@@ -12,6 +13,7 @@ import com.vaadin.spring.annotation.SpringView;
 import com.vaadin.spring.annotation.UIScope;
 import com.vaadin.ui.*;
 import com.vaadin.ui.themes.ValoTheme;
+import org.springframework.beans.factory.annotation.Autowired;
 
 import javax.annotation.PostConstruct;
 import java.util.HashSet;
@@ -43,27 +45,23 @@ public class CategoriesView extends VerticalLayout implements View {
     }
 
     private void setUpCategoryForms() {
-        createCategory = new Button("New");
-        createCategory.setStyleName(ValoTheme.BUTTON_PRIMARY);
+        createCategory = new Button(VaadinIcons.PLUS);
+        createCategory.setDescription("Create new category");
         createCategory.addClickListener(event -> {
-            categoryGrid.asMultiSelect().clear();
+            clearGridSelection();
             Set<Category> newSet = new HashSet<>();
             newSet.add(new Category("Default Name"));
             categoryForm.setCategories(newSet);
-            editCategory.setVisible(true);
-            editCategory.setCaption("Save");
         });
-        editCategory = new Button("Edit");
+        editCategory = new Button(VaadinIcons.CHECK);
         editCategory.setClickShortcut(ShortcutAction.KeyCode.ENTER);
-        editCategory.addClickListener(e -> {
-            categoryForm.save();
-            editCategory.setVisible(false);
-        });
-        deleteCategory = new Button("Delete");
+        editCategory.setDescription("Save/Update category");
+        editCategory.addClickListener(e -> categoryForm.save() );
+        deleteCategory = new Button(VaadinIcons.TRASH);
+        deleteCategory.setDescription("Delete category");
         deleteCategory.addClickListener(e -> categoryForm.delete());
 		categoryForm.setVisible(false);
-        editCategory.setVisible(false);
-        deleteCategory.setVisible(false);
+		manageButtons(false, false);
 	}
 
 	private void setUpCategoryGrid() {
@@ -80,26 +78,21 @@ public class CategoriesView extends VerticalLayout implements View {
 		updateCategoryList();
 
 		categoryGrid.asMultiSelect().addSelectionListener(event -> {
-            Set<Category> selected = categoryGrid.getSelectedItems();
-		    if (selected.isEmpty()) {
+		    if (event == null) {
                 categoryForm.setVisible(false);
-                editCategory.setVisible(false);
-                deleteCategory.setVisible(false);
-            }else {
-                deleteCategory.setVisible(true);
-		        if (selected.size() == 1) {
-		            editCategory.setCaption("Edit");
-                    editCategory.setVisible(true);
-                } else {
-                    editCategory.setVisible(false);
-                }
-                categoryForm.setCategories(selected);
-                categoryForm.setVisible(true);
+		        manageButtons(false, false);
+		        return;
             }
+            Set<Category> selected = categoryGrid.getSelectedItems();
+		    int size = selected.size();
+		    manageButtons(size == 1,
+                size > 0 && selected.iterator().next().isPersisted());
+            categoryForm.setCategories(selected);
         });
 	}
 
-	private void setUpCategoryLayouts() {
+
+    private void setUpCategoryLayouts() {
         categoryRoot = new VerticalLayout();
         buttons = new HorizontalLayout(createCategory, editCategory, deleteCategory);
         Label title = new Label("Categories Manager");
@@ -128,6 +121,20 @@ public class CategoriesView extends VerticalLayout implements View {
 	public void clearGridSelection() {              //CategoryForm class uses this method when new category
         categoryGrid.asMultiSelect().clear();       //gets created, to clear previous selections
     }
+
+    public void setInitialState() {
+        List<Category> categories = service.findAllCategories();
+        categoryGrid.setItems(categories);
+        categoryForm.setVisible(false);
+        clearGridSelection();
+        manageButtons(false, false);
+    }
+
+    private void manageButtons(boolean editButton, boolean deleteButton) {
+        editCategory.setEnabled(editButton);
+        deleteCategory.setEnabled(deleteButton);
+    }
+
 
     @Override
     public void enter(ViewChangeListener.ViewChangeEvent event) {   //update info on view change

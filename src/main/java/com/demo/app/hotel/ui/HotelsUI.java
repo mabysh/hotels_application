@@ -6,6 +6,7 @@ import com.demo.app.hotel.ui.views.CategoriesView;
 import com.demo.app.hotel.ui.views.HotelsView;
 import com.vaadin.annotations.Theme;
 import com.vaadin.annotations.VaadinServletConfiguration;
+import com.vaadin.icons.VaadinIcons;
 import com.vaadin.navigator.Navigator;
 import com.vaadin.navigator.View;
 import com.vaadin.navigator.ViewDisplay;
@@ -63,14 +64,14 @@ public class HotelsUI extends UI implements ViewDisplay {
 	private void setUpPageForms() {
         hotelBtn = new Button("Hotels");
 		hotelBtn.addStyleName("menubutton");
-        hotelBtn.setIcon(FontAwesome.TASKS);
+        hotelBtn.setIcon(VaadinIcons.TASKS);
         hotelBtn.addStyleName(ValoTheme.BUTTON_BORDERLESS);
 		hotelBtn.addStyleName(ValoTheme.BUTTON_ICON_ALIGN_TOP);
 		categoryBtn = new Button("Categories");
 		categoryBtn.addStyleName("menubutton");
 		categoryBtn.addStyleName(ValoTheme.BUTTON_BORDERLESS);
 		categoryBtn.addStyleName(ValoTheme.BUTTON_ICON_ALIGN_TOP);
-		categoryBtn.setIcon(FontAwesome.TASKS);
+		categoryBtn.setIcon(VaadinIcons.TASKS);
 
 		hotelBtn.addClickListener(event -> {
 			categoryBtn.removeStyleName("menubutton_clicked");

@@ -9,30 +9,27 @@ import com.demo.app.hotel.ui.views.HotelsView;
 import com.vaadin.data.Binder;
 import com.vaadin.data.ValidationException;
 import com.vaadin.data.validator.RegexpValidator;
-import com.vaadin.event.ShortcutAction.KeyCode;
 import com.vaadin.ui.*;
-import com.vaadin.ui.themes.ValoTheme;
 
 import java.util.List;
+import java.util.Set;
 
 public class HotelForm extends FormLayout {
 
-	private TextField name = new TextField("Name");
-	private TextField address = new TextField("Address");
-	private NativeSelect<String> rating = new NativeSelect<>("Rating");
-	private NativeSelect<Category> category = new NativeSelect<>("Category");
-	private TextField url = new TextField("Link");
-	private DateField operatesFrom = new DateField("Operates From");
-	private TextArea description = new TextArea("Description");
-	private Button save = new Button("Save");
-	private Button delete = new Button("Delete");
+	protected TextField name = new TextField("Name");
+	protected TextField address = new TextField("Address");
+	protected ComboBox<String> rating = new ComboBox<>("Rating");
+	protected ComboBox<Category> category = new ComboBox<>("Category");
+	protected TextField url = new TextField("Link");
+	protected DateField operatesFrom = new DateField("Operates From");
+	protected TextArea description = new TextArea("Description");
 
-	private ApplicationServiceImpl service = ApplicationServiceImpl.getInstance();
-	private List<Category> categories = service.findAllCategories();
-	private Hotel hotel;
-	private HotelsView view;
-	private Binder<Hotel> binder = new Binder<>(Hotel.class);
-	private final String[] RATING_ITEMS = {"\u2605",
+	protected ApplicationServiceImpl service = ApplicationServiceImpl.getInstance();
+	protected List<Category> categories = service.findAllCategories();
+	protected Set<Hotel> hotels;
+	protected HotelsView view;
+	protected Binder<Hotel> binder = new Binder<>(Hotel.class);
+	protected final String[] RATING_ITEMS = {"\u2605",
 											"\u2605\u2605",
 											"\u2605\u2605\u2605",
 											"\u2605\u2605\u2605\u2605",
@@ -42,14 +39,13 @@ public class HotelForm extends FormLayout {
 		this.view = view;
 		
 		setSizeUndefined();
-		HorizontalLayout buttons = new HorizontalLayout(save, delete);
-		addComponents(name, address, rating, category, url, operatesFrom, description, buttons);
+		addComponents(name, address, rating, category, url, operatesFrom, description);
 
 		rating.setItems(RATING_ITEMS);
+		rating.setPlaceholder("Select rating");
 		category.setItems(categories);		//initial set. see updateAvailableCategories() method;
 		category.setItemCaptionGenerator(Category::getName);	//getName() instead of toString() is the source;
-		save.setStyleName(ValoTheme.BUTTON_PRIMARY);
-		save.setClickShortcut(KeyCode.ENTER);
+		category.setPlaceholder("Please, select category");
 
 		name.setRequiredIndicatorVisible(true);
 		address.setRequiredIndicatorVisible(true);
@@ -57,9 +53,6 @@ public class HotelForm extends FormLayout {
 		rating.setRequiredIndicatorVisible(true);
 		url.setRequiredIndicatorVisible(true);
 		operatesFrom.setRequiredIndicatorVisible(true);
-
-		save.addClickListener(e -> save());
-		delete.addClickListener(e -> delete());
 
 		bindFields();
 		setUpTooltips();
@@ -102,25 +95,31 @@ public class HotelForm extends FormLayout {
 				.bind(Hotel::getOperatesFrom, Hotel::setOperatesFrom);
 	}
 
-	public void setHotel(Hotel h) {
-		this.hotel = h;
-		binder.readBean(h);
-		delete.setVisible(h.isPersisted());
+	public void setHotels(Set<Hotel> hotels) {
+		this.hotels = hotels;
+		for (Hotel hotel : hotels) {
+			binder.readBean(hotel);
+		}
 		setVisible(true);
 		name.selectAll();
 	}
-	
-	private void delete() {
-		service.delete(hotel);
+
+	public void delete() {
+	    for (Hotel hotel : hotels) {
+	    	binder.readBean(hotel);
+	    	service.delete(hotel);
+		}
 		view.updateHotelList();
 		setVisible(false);
 		Notification.show("Hotel has been deleted");
 	}
 
-	private void save() {
+	public void save() {
 		try {
-			binder.writeBean(hotel);
-			service.save(hotel);
+			for (Hotel hotel : hotels) {
+				binder.writeBean(hotel);
+	    		service.save(hotel);
+		}
 		} catch (ValidationException e ) {
 			Notification.show("Hotel could not be saved, " +
         "please check data for each field.");

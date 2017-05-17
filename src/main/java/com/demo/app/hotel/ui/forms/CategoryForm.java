@@ -42,23 +42,17 @@ public class CategoryForm extends FormLayout {
         for (Category hc : categories) {
             binder.readBean(hc);
         }
-        if (categories.size() == 1) {
-            name.setVisible(true);
-            name.selectAll();
-            multiple.setVisible(false);
-        } else {
-            name.setVisible(false);
-            multiple.setVisible(true);
-        }
-        setVisible(true);
+        int size = categories.size();
+        manageForm(size == 1, size > 1);
+        setVisible(!categories.isEmpty());
     }
 
     public void delete() {
         for (Category hc : categories) {
             service.delete(hc);
+            binder.removeBean();
         }
-        view.updateCategoryList();        // <-- this method updates category list in grid on delete;
-        setVisible(false);
+        view.setInitialState();
         Notification.show("Selected categories has been deleted");
     }
 
@@ -67,14 +61,19 @@ public class CategoryForm extends FormLayout {
             for (Category hc : categories) {
                 binder.writeBean(hc);
                 service.save(hc);
+                binder.removeBean();
             }
         } catch (ValidationException ex) {
             view.clearGridSelection();
             Notification.show("Category could not be saved. Please, enter valid name");
-            return;
+            return;             //form stays opened
         }
-       view.updateCategoryList();        // <-- this method updates category list in grid on save
-        setVisible(false);
+        view.setInitialState();
         Notification.show("Categories has been updated");
+    }
+
+    private void manageForm(boolean nameEnable, boolean multipleEnable) {
+        name.setVisible(nameEnable);
+        multiple.setVisible(multipleEnable);
     }
 }
