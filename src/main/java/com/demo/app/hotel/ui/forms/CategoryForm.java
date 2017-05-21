@@ -1,13 +1,14 @@
 package com.demo.app.hotel.ui.forms;
 
-import com.demo.app.hotel.backend.service.ApplicationServiceImpl;
 import com.demo.app.hotel.backend.entity.Category;
+import com.demo.app.hotel.backend.service.ServiceFactory;
 import com.demo.app.hotel.ui.views.CategoriesView;
 import com.vaadin.data.Binder;
 import com.vaadin.data.ValidationException;
 import com.vaadin.data.validator.RegexpValidator;
 import com.vaadin.shared.ui.ContentMode;
 import com.vaadin.ui.*;
+
 import java.util.Set;
 
 public class CategoryForm extends FormLayout {
@@ -15,17 +16,16 @@ public class CategoryForm extends FormLayout {
     private Label multiple = new Label("Multiple items selected. \nDelete them or create new one.", ContentMode.PREFORMATTED);
     private TextField name = new TextField("Name");
 
-    private ApplicationServiceImpl service = ApplicationServiceImpl.getInstance();
     private Set<Category> categories;
     private CategoriesView view;
     private Binder<Category> binder = new Binder<>(Category.class);
 
     public CategoryForm(CategoriesView view) {
         this.view = view;
-        configureComponents();
+        setUpComponents();
     }
 
-    private void configureComponents() {
+    private void setUpComponents() {
         setSizeUndefined();
 
         name.setRequiredIndicatorVisible(true);
@@ -49,7 +49,7 @@ public class CategoryForm extends FormLayout {
 
     public void delete() {
         for (Category hc : categories) {
-            service.delete(hc);
+            ServiceFactory.getApplicationServiceImpl().delete(hc);
             binder.removeBean();
         }
         view.setInitialState();
@@ -57,19 +57,23 @@ public class CategoryForm extends FormLayout {
     }
 
     public void save() {
-        try {
-            for (Category hc : categories) {
-                binder.writeBean(hc);
-                service.save(hc);
-                binder.removeBean();
-            }
-        } catch (ValidationException ex) {
-            view.clearGridSelection();
-            Notification.show("Category could not be saved. Please, enter valid name");
-            return;             //form stays opened
-        }
-        view.setInitialState();
-        Notification.show("Categories has been updated");
+    	if (binder.hasChanges()) {
+    		try {
+    			for (Category hc : categories) {
+    				binder.writeBean(hc);
+    				ServiceFactory.getApplicationServiceImpl().save(hc);
+    				binder.removeBean();
+    			}
+    		} catch (ValidationException ex) {
+    			view.clearGridSelection();
+    			Notification.show("Category could not be saved. Please, enter valid name");
+    			return;             //form stays opened on invalid input
+    		}
+    		view.setInitialState();
+    		Notification.show("Categories has been updated");
+    	} else {
+    		Notification.show("No changes have been made");
+    	}
     }
 
     private void manageForm(boolean nameEnable, boolean multipleEnable) {

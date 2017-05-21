@@ -2,6 +2,8 @@ package com.demo.app.hotel.ui.forms;
 
 
 import com.demo.app.hotel.backend.entity.Hotel;
+import com.demo.app.hotel.backend.service.ApplicationServiceImpl;
+import com.demo.app.hotel.backend.service.ServiceFactory;
 import com.demo.app.hotel.ui.representation.DateConverter;
 import com.demo.app.hotel.ui.representation.StarsConverter;
 import com.demo.app.hotel.ui.views.HotelsView;
@@ -50,7 +52,7 @@ public class BulkForm extends HotelForm {
         try {
             for (Hotel hotel : hotels) {
                 newBinder.writeBean(hotel);
-                service.save(hotel);
+                ServiceFactory.getApplicationServiceImpl().save(hotel);
             }
         } catch (ValidationException e) {
             Notification.show("Hotel could not be saved, " +
@@ -66,7 +68,7 @@ public class BulkForm extends HotelForm {
     private void setUpForms() {
         removeAllComponents();
         layout.addComponents(bulkLabel, comboBox, name, address, rating, category, url,
-                operatesFrom, description, buttons);
+                operatesFrom, guaranteeFee, description, buttons);
         addComponent(layout);
 
         bulkLabel.addStyleName("h1");
@@ -112,7 +114,7 @@ public class BulkForm extends HotelForm {
      * For each field selection, new binder gets created with appropriate single field binded.
      * I know, this is a bunch of boilerplate code, but going this way allows us to use same HotelForm
      * components. I'd like to know any other approach to modify existing binder instead of create
-     * new one ever time. Didn't find any usefull information for this matter.
+     * new one every time. Didn't find any usefull information on this matter.
      */
     private void bindFieldByName(String name) {
         newBinder = new Binder<>(Hotel.class);
@@ -155,6 +157,12 @@ public class BulkForm extends HotelForm {
             }case "description": {
 		        newBinder.forField(description).bind(Hotel::getDescription, Hotel::setDescription);
 		        break;
+            }case "guaranteeFee": {
+            	binder.forField(guaranteeFee)
+				.asRequired("Please, choose payment method")
+				.withValidator(val -> (val.isValid()),	"Not valid")
+				.bind(Hotel::getGuaranteeFee, Hotel::setGuaranteeFee);
+            	break;
             }
         }
     }

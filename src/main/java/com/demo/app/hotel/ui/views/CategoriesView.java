@@ -3,6 +3,7 @@ package com.demo.app.hotel.ui.views;
 import com.demo.app.hotel.backend.service.ApplicationServiceImpl;
 import com.demo.app.hotel.backend.entity.Category;
 import com.demo.app.hotel.backend.entity.Hotel;
+import com.demo.app.hotel.backend.service.ServiceFactory;
 import com.demo.app.hotel.ui.forms.CategoryForm;
 import com.vaadin.event.ShortcutAction;
 import com.vaadin.icons.VaadinIcons;
@@ -12,8 +13,6 @@ import com.vaadin.spring.annotation.SpringComponent;
 import com.vaadin.spring.annotation.SpringView;
 import com.vaadin.spring.annotation.UIScope;
 import com.vaadin.ui.*;
-import com.vaadin.ui.themes.ValoTheme;
-import org.springframework.beans.factory.annotation.Autowired;
 
 import javax.annotation.PostConstruct;
 import java.util.HashSet;
@@ -34,7 +33,9 @@ public class CategoriesView extends VerticalLayout implements View {
 
     private CategoryForm categoryForm = new CategoryForm(this);
 
-    private ApplicationServiceImpl service = ApplicationServiceImpl.getInstance();
+    private ApplicationServiceImpl service = ServiceFactory.getApplicationServiceImpl();
+
+    private boolean isViewCreated = false;
 
     @PostConstruct
     void init() {
@@ -137,7 +138,11 @@ public class CategoriesView extends VerticalLayout implements View {
 
 
     @Override
-    public void enter(ViewChangeListener.ViewChangeEvent event) {   //update info on view change
-        updateCategoryList();
+    public void enter(ViewChangeListener.ViewChangeEvent event) {
+        if (!isViewCreated) {		//do not redraw components on each enter
+            init();
+            isViewCreated = true;
+        }
+        updateCategoryList();       //update info on view change
     }
 }

@@ -1,83 +1,99 @@
 package com.demo.app.hotel.backend.service;
 
-import com.demo.app.hotel.backend.dao.CategoryDao;
-import com.demo.app.hotel.backend.dao.CategoryDaoImpl;
-import com.demo.app.hotel.backend.dao.HotelDao;
-import com.demo.app.hotel.backend.dao.HotelDaoImpl;
 import com.demo.app.hotel.backend.entity.AbstractEntity;
 import com.demo.app.hotel.backend.entity.Category;
+import com.demo.app.hotel.backend.entity.GuaranteeFee;
 import com.demo.app.hotel.backend.entity.Hotel;
-import org.springframework.stereotype.Service;
 
-import javax.persistence.EntityManager;
-import javax.persistence.EntityManagerFactory;
-import javax.persistence.Persistence;
+import org.springframework.stereotype.Repository;
+import org.springframework.transaction.annotation.Propagation;
+import org.springframework.transaction.annotation.Transactional;
+
+import javax.persistence.*;
+
 import java.util.List;
 import java.util.Random;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
-@Service(value = "applicationService")
-public class ApplicationServiceImpl implements ApplicationService{
+@Repository
+public class ApplicationServiceImpl {
 
+    @PersistenceContext(unitName = "demo_hotels")
+    private EntityManager entityManager;
+    
+    private int categoriesFetched;
+    private int hotelsFetched;
 
-    private static ApplicationServiceImpl instance;
-
-    private EntityManagerFactory emf = Persistence.createEntityManagerFactory("demo_hotels");
-    private EntityManager entityManager = emf.createEntityManager();
-
-    HotelDao hotelDao = new HotelDaoImpl(entityManager);
-    CategoryDao categoryDao = new CategoryDaoImpl(entityManager);
-
-    private ApplicationServiceImpl() { }
-
-    public static ApplicationServiceImpl getInstance() {
-        if (instance == null) {
-            instance = new ApplicationServiceImpl();
-            instance.ensureTestData();
-        }
-        return instance;
+    public ApplicationServiceImpl() {
+    }
+    			
+    @Transactional 
+    public List<Hotel> findAllHotels() {
+    	return entityManager.createQuery("FROM Hotel", Hotel.class).getResultList();
     }
 
-    @Override
-    public synchronized void save(AbstractEntity entity) {
-        if (entity.getClass().equals(Hotel.class)) {
-            hotelDao.save((Hotel)entity);
-        } else {
-            categoryDao.save((Category)entity);
-        }
+    @Transactional
+	public List<Hotel> findAllHotels(List<String> filter) {
+		List<Hotel> list;
+		String nameFilter = filter.get(0);
+		String addressFilter = filter.get(1);
+		if((nameFilter == null || nameFilter.isEmpty()) &&
+           (addressFilter == null || addressFilter.isEmpty())) {
+			list = entityManager.createQuery("FROM Hotel", Hotel.class).getResultList();
+		} else {
+			list = entityManager.createNamedQuery("Hotel.filter", Hotel.class).
+                    setParameter("nameFilter", "%" + nameFilter + "%").
+                    setParameter("addressFilter", "%" + addressFilter + "%")
+                    .getResultList();
+		}
+		hotelsFetched = list.size();
+	    return list;
+	}
+    
+    @Transactional
+    public List<Hotel> refreshHotels(List<Hotel> list) {
+    	for (Hotel h : list) {
+    		entityManager.refresh(h);
+    	}
+    	return list;
     }
 
-    @Override
-    public synchronized void delete(AbstractEntity entity) {
-        if (entity.getClass().equals(Hotel.class)) {
-            hotelDao.delete((Hotel)entity);
-        } else {
-            categoryDao.delete((Category)entity);
-        }
-    }
-
-    public List<? extends AbstractEntity> findAll(Class<? extends AbstractEntity> theClass) {
-        if (theClass.getClass().equals(Hotel.class)) {
-            return findAllHotels(null, null);
-        } else {
-            return findAllCategories();
-        }
-    }
-
-    @Override
-    public List<Hotel> findAllHotels(String nameFilter, String addressFilter) {
-		return hotelDao.findAll(nameFilter, addressFilter);
-    }
-
-    @Override
+	@Transactional
 	public List<Category> findAllCategories() {
-    	return categoryDao.findAll();
+		List<Category> list;
+	    list = entityManager.createQuery("FROM Category", Category.class).getResultList();
+	    categoriesFetched = list.size();
+	    return list;
+
+	}
+	@Transactional(propagation = Propagation.REQUIRED)
+	public void save(AbstractEntity entity) {
+		if (entity.isPersisted()) {
+			entityManager.merge(entity);
+		} else {
+			entityManager.persist(entity);
+		}
+	}
+	
+	    @Transactional(propagation = Propagation.REQUIRED)
+	public void delete(AbstractEntity entity) {
+		entityManager.remove(entityManager.contains(entity) ? 	//checks whether entity within current
+				entity : entityManager.merge(entity));			//transaction and merge it if it's not
 	}
 
+	@Transactional
+	public List<Hotel> findByCategory(Category category) {
+		List<Hotel> list;
+        list = entityManager.createQuery("SELECT h from Hotel h where h.category=:category", Hotel.class)
+                 .setParameter("category", category).getResultList();
+        return list;
+     }
+
+	@Transactional
 	public Hotel getHighestRatingHotel(Category category) {     //returns highest rating hotel for a category
 
-         List<Hotel> filtered = hotelDao.findByCategory(category);
+         List<Hotel> filtered = findByCategory(category);
          if (filtered.isEmpty())         //no hotels
              return new Hotel();
          else {
@@ -91,9 +107,15 @@ public class ApplicationServiceImpl implements ApplicationService{
          }
 
      }
+	
+	public int getHotelsFentched() { return hotelsFetched; }
+	public int getCategoriesFetched() {
+		return categoriesFetched;
+	}
 
+	@Transactional(propagation = Propagation.REQUIRED)
     public void ensureTestData() {
-		if (findAll(Hotel.class).isEmpty() || findAll(Hotel.class) == null) {
+		if (findAllHotels().isEmpty() || findAllCategories() == null) {
 			final String[] hotelData = new String[] {
 					"3 Nagas Luang Prabang - MGallery by Sofitel;4;https://www.booking.com/hotel/la/3-nagas-luang-prabang-by-accor.en-gb.html;Vat Nong Village, Sakkaline Road, Democratic Republic Lao, 06000 Luang Prabang, Laos;",
 					"Abby Boutique Guesthouse;1;https://www.booking.com/hotel/la/abby-boutique-guesthouse.en-gb.html;Ban Sawang , 01000 Vang Vieng, Laos",
@@ -143,6 +165,8 @@ public class ApplicationServiceImpl implements ApplicationService{
 				h.setCategory((Category) categories.toArray()[r.nextInt(categories.size())]);
 				int daysOld = r.nextInt(365 * 30);
 				h.setOperatesFrom((long) daysOld);
+				GuaranteeFee f = new GuaranteeFee();
+				h.setGuaranteeFee(f);
 				save(h);
 			}
 		}

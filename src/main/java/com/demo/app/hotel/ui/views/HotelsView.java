@@ -1,12 +1,13 @@
 package com.demo.app.hotel.ui.views;
 
-import com.demo.app.hotel.backend.service.ApplicationServiceImpl;
 import com.demo.app.hotel.backend.entity.Hotel;
 import com.demo.app.hotel.ui.forms.BulkForm;
 import com.demo.app.hotel.ui.forms.HotelForm;
 import com.demo.app.hotel.ui.representation.CategoryRenderer;
+import com.demo.app.hotel.backend.service.HotelDataProvider;
 import com.demo.app.hotel.ui.representation.OperatesFromRenderer;
 import com.demo.app.hotel.ui.representation.StarsRenderer;
+import com.vaadin.data.provider.ConfigurableFilterDataProvider;
 import com.vaadin.icons.VaadinIcons;
 import com.vaadin.navigator.View;
 import com.vaadin.navigator.ViewChangeListener;
@@ -19,19 +20,21 @@ import com.vaadin.ui.*;
 import com.vaadin.ui.renderers.HtmlRenderer;
 import com.vaadin.ui.themes.ValoTheme;
 
+
 import javax.annotation.PostConstruct;
+
+import java.util.Arrays;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
+@SuppressWarnings("serial")
 @SpringComponent
 @UIScope
 @SpringView(name = HotelsView.VIEW_NAME)
 public class HotelsView extends VerticalLayout implements View {
 
     public static final String VIEW_NAME = "hotels";
-
-	private ApplicationServiceImpl service = ApplicationServiceImpl.getInstance();
 
 	private Button addHotel, deleteHotel, saveHotel, bulk;
 	private TextField filterAddress;
@@ -49,9 +52,13 @@ public class HotelsView extends VerticalLayout implements View {
 	private final Label multiple = new Label("Multiple hotels selected. " +
 			"Available options: create new hotel, delete selected, bulk update selected.");
 	private final Label noDesc = new Label("No Description");
+	
+	private ConfigurableFilterDataProvider<Hotel, Void, List<String>> dataProvider;
+
+	private boolean isViewCreated = false;
 
 	@PostConstruct
-    void init() {
+    public void init() {
         setUpHotelForms();
     	setUpHotelGrid();
     	setUpHotelLayouts();
@@ -125,6 +132,9 @@ public class HotelsView extends VerticalLayout implements View {
 	private void setUpHotelGrid() {
 
     	//Configure hotel list grid
+		dataProvider = new HotelDataProvider().withConfigurableFilter();
+		grid.setDataProvider(dataProvider);
+
 		grid.setColumns("rating", "category", "name", "address", "operatesFrom");
 		grid.getColumn("category").setRenderer(new CategoryRenderer()).setCaption("Category");
 		grid.getColumn("rating").setRenderer(new StarsRenderer());
@@ -190,12 +200,16 @@ public class HotelsView extends VerticalLayout implements View {
 	}
 
 	public void updateHotelList() {
-		String addrFilter = filterAddress.getValue().toLowerCase();
-		String nameFilter = filterName.getValue().toLowerCase();
+		List<String> filterList = Arrays.asList(
+				filterName.getValue().toLowerCase(),
+				filterAddress.getValue().toLowerCase());
 
-		List<Hotel> hotelList = service.findAllHotels(nameFilter, addrFilter);
+		dataProvider = new HotelDataProvider().withConfigurableFilter();   //<--without this line unable to edit 
+		grid.setDataProvider(dataProvider);									//a hotel twice without browser page refresh
+		dataProvider.setFilter(filterList);
 
-        grid.setItems(hotelList);
+		grid.asMultiSelect().clear();
+
 	}
 
 	private void manageButtons(boolean addButton, boolean editButton, boolean deleteButton, boolean bulkEnabled) {
@@ -208,6 +222,10 @@ public class HotelsView extends VerticalLayout implements View {
 
     @Override
     public void enter(ViewChangeListener.ViewChangeEvent event) { 	//update info on change view
+		if (!isViewCreated) {		//do not redraw components on each enter
+			init();
+			isViewCreated = true;
+		}
 	    updateHotelList();
 	    hotelForm.updateAvailableCategories();
     }

@@ -71,4 +71,13 @@
 								onDelete="SET NULL"	/>
 
 	</changeSet>
+	<changeSet id="guarantee_fee_create" author="mabysh">
+		<addColumn tableName="HOTEL">
+			<column name="GUARANTEE_FEE" type="INT NOT NULL DEFAULT 0" />
+		</addColumn>
+		<rollback>
+			<dropColumn tableName="HOTEL"
+						columnName="GUARANTEE_FEE" />
+		</rollback>
+	</changeSet>
 </databaseChangeLog>

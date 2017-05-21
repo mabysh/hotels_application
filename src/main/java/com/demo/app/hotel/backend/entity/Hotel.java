@@ -35,11 +35,22 @@ public class Hotel extends AbstractEntity {
 	private String url;
 	@Pattern(message = "Incorrect url!", regexp = "^(https://www.booking.com).*|^(www.booking.com).*|^(booking.com).*")
 	private String description;
+	
+	@Embedded
+	@NotNull
+	private GuaranteeFee guaranteeFee;
 
 	@Version
 	@Column(name = "OPTLOCK")
 	private int version;
 
+	public GuaranteeFee getGuaranteeFee() {
+		return guaranteeFee;
+	}
+	
+	public void setGuaranteeFee(GuaranteeFee fee) {
+		this.guaranteeFee = fee;
+	}
 
 	public String getDescription() {
 		return description;
@@ -117,7 +128,7 @@ public class Hotel extends AbstractEntity {
 	    this.description = "";
 	}
 
-	public Hotel(String name, String address, Integer rating, Long operatesFrom, Category category, String url) {
+	public Hotel(String name, String address, Integer rating, Long operatesFrom, Category category, String url, GuaranteeFee fee) {
 		super();
 		this.name = name;
 		this.address = address;
@@ -125,6 +136,7 @@ public class Hotel extends AbstractEntity {
 		this.operatesFrom = operatesFrom;
 		this.category = category;
 		this.url = url;
+		this.guaranteeFee = fee;
 	}
 
 }

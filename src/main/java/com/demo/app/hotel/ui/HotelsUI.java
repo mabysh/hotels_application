@@ -1,26 +1,32 @@
 package com.demo.app.hotel.ui;
 
+import javax.servlet.annotation.WebListener;
 import javax.servlet.annotation.WebServlet;
 
+import com.demo.app.hotel.backend.service.ServiceFactory;
 import com.demo.app.hotel.ui.views.CategoriesView;
 import com.demo.app.hotel.ui.views.HotelsView;
 import com.vaadin.annotations.Theme;
 import com.vaadin.annotations.VaadinServletConfiguration;
+import com.vaadin.annotations.Widgetset;
 import com.vaadin.icons.VaadinIcons;
 import com.vaadin.navigator.Navigator;
 import com.vaadin.navigator.View;
 import com.vaadin.navigator.ViewDisplay;
 import com.vaadin.server.VaadinRequest;
+import com.vaadin.spring.annotation.EnableVaadin;
 import com.vaadin.spring.annotation.SpringUI;
 import com.vaadin.spring.annotation.SpringViewDisplay;
-import com.vaadin.spring.navigator.SpringViewProvider;
 import com.vaadin.spring.server.SpringVaadinServlet;
 import com.vaadin.ui.*;
 import com.vaadin.ui.themes.ValoTheme;
-import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.Configuration;
+import org.springframework.web.context.ContextLoaderListener;
 
 @Theme("mytheme")
 @SpringUI
+//@Widgetset()
 @SpringViewDisplay
 public class HotelsUI extends UI implements ViewDisplay {
 
@@ -29,18 +35,18 @@ public class HotelsUI extends UI implements ViewDisplay {
     private Button hotelBtn, categoryBtn;
     private Panel content = new Panel();
 
-    @Autowired
-	SpringViewProvider viewProvider;
-
     @Override
     protected void init(VaadinRequest vaadinRequest) {
         setUpPageForms();
         setUpPageLayout();
 
-        Navigator navigator = new Navigator(this, content);
-		navigator.addProvider(viewProvider);
+        ServiceFactory.getApplicationServiceImpl().ensureTestData();
 
-		getUI().getNavigator().navigateTo(HotelsView.VIEW_NAME);
+        Navigator navigator = new Navigator(this, content);
+		navigator.addView(HotelsView.VIEW_NAME, HotelsView.class);
+		navigator.addView(CategoriesView.VIEW_NAME, CategoriesView.class);
+
+		navigator.navigateTo(HotelsView.VIEW_NAME);
     }
 
 	private void setUpPageLayout() {
@@ -95,4 +101,18 @@ public class HotelsUI extends UI implements ViewDisplay {
     @VaadinServletConfiguration(ui = HotelsUI.class, productionMode = false)
     public static class HotelsUIServlet extends SpringVaadinServlet {
     }
+
+    @WebListener
+	public static class MyContextLoaderListener extends ContextLoaderListener {}
+
+
+	@Configuration
+	@EnableVaadin
+	public static class HotelDataConfig {
+    	@Bean
+		public static ServiceFactory getServiceFactory() {
+    		return new ServiceFactory();
+		}
+	}
+
 }
