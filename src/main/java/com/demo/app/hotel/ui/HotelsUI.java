@@ -34,6 +34,7 @@ public class HotelsUI extends UI implements ViewDisplay {
     private CssLayout menu;
     private Button hotelBtn, categoryBtn;
     private Panel content = new Panel();
+    private Navigator navigator;
 
     @Override
     protected void init(VaadinRequest vaadinRequest) {
@@ -42,7 +43,7 @@ public class HotelsUI extends UI implements ViewDisplay {
 
         ServiceFactory.getApplicationServiceImpl().ensureTestData();
 
-        Navigator navigator = new Navigator(this, content);
+        navigator = new Navigator(this, content);
 		navigator.addView(HotelsView.VIEW_NAME, HotelsView.class);
 		navigator.addView(CategoriesView.VIEW_NAME, CategoriesView.class);
 
@@ -57,7 +58,6 @@ public class HotelsUI extends UI implements ViewDisplay {
 
     	menuAndContent = new HorizontalLayout();
        	menuAndContent.setSizeFull();
-		menuAndContent.setSpacing(false);
     	menuAndContent.addComponents(menu, content);
     	menuAndContent.setExpandRatio(menu, 1);
 		menuAndContent.setExpandRatio(content,14);
@@ -81,12 +81,12 @@ public class HotelsUI extends UI implements ViewDisplay {
 		hotelBtn.addClickListener(event -> {
 			categoryBtn.removeStyleName("menubutton_clicked");
 		    hotelBtn.addStyleName("menubutton_clicked");
-			getUI().getNavigator().navigateTo(HotelsView.VIEW_NAME);
+			navigator.navigateTo(HotelsView.VIEW_NAME);
 		});
 		categoryBtn.addClickListener(event -> {
 			hotelBtn.removeStyleName("menubutton_clicked");
 			categoryBtn.addStyleName("menubutton_clicked");
-			getUI().getNavigator().navigateTo(CategoriesView.VIEW_NAME);
+			navigator.navigateTo(CategoriesView.VIEW_NAME);
 		});
 		content.setSizeFull();
 		content.addStyleName("content");

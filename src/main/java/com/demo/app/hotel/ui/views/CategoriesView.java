@@ -1,6 +1,6 @@
 package com.demo.app.hotel.ui.views;
 
-import com.demo.app.hotel.backend.service.ApplicationServiceImpl;
+import com.demo.app.hotel.backend.service.ApplicationService;
 import com.demo.app.hotel.backend.entity.Category;
 import com.demo.app.hotel.backend.entity.Hotel;
 import com.demo.app.hotel.backend.service.ServiceFactory;
@@ -33,7 +33,7 @@ public class CategoriesView extends VerticalLayout implements View {
 
     private CategoryForm categoryForm = new CategoryForm(this);
 
-    private ApplicationServiceImpl service = ServiceFactory.getApplicationServiceImpl();
+    private ApplicationService service = ServiceFactory.getApplicationServiceImpl();
 
     private boolean isViewCreated = false;
 

@@ -68,7 +68,7 @@
 		<property name="entityManagerFactory" ref="entityManagerFactory" />
 	</bean>
 
-	<bean id="applicationService" class="com.demo.app.hotel.backend.service.ApplicationServiceImpl"/>
+	<bean id="applicationService" class="com.demo.app.hotel.backend.service.ApplicationService"/>
 
 	<tx:annotation-driven transaction-manager="transactionManager" />
 </beans>

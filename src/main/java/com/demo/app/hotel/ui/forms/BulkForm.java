@@ -2,7 +2,6 @@ package com.demo.app.hotel.ui.forms;
 
 
 import com.demo.app.hotel.backend.entity.Hotel;
-import com.demo.app.hotel.backend.service.ApplicationServiceImpl;
 import com.demo.app.hotel.backend.service.ServiceFactory;
 import com.demo.app.hotel.ui.representation.DateConverter;
 import com.demo.app.hotel.ui.representation.StarsConverter;

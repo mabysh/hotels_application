@@ -149,7 +149,7 @@ public class HotelForm extends FormLayout {
 			}
 			view.updateHotelList();
 			setVisible(false);
-			Notification.show("Hotels has been updated");
+			Notification.show("Hotels have been updated");
 		} else {
 			Notification.show("No changes have been made");
 		}

@@ -15,9 +15,9 @@ public class ServiceFactory implements ApplicationContextAware {
         this.applicationContext = applicationContext;
     }
 
-    public static ApplicationServiceImpl getApplicationServiceImpl() {
-        ApplicationServiceImpl service = applicationContext.getBean("applicationService",
-                ApplicationServiceImpl.class);
+    public static ApplicationService getApplicationServiceImpl() {
+        ApplicationService service = applicationContext.getBean("applicationService",
+                ApplicationService.class);
         return service;
     }
 }

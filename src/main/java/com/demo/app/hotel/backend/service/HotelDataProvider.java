@@ -4,7 +4,7 @@ import java.util.List;
 import java.util.stream.Stream;
 
 import com.demo.app.hotel.backend.entity.Hotel;
-import com.demo.app.hotel.backend.service.ApplicationServiceImpl;
+import com.demo.app.hotel.backend.service.ApplicationService;
 import com.demo.app.hotel.backend.service.ServiceFactory;
 import com.vaadin.data.provider.AbstractBackEndDataProvider;
 import com.vaadin.data.provider.Query;
@@ -12,7 +12,7 @@ import com.vaadin.data.provider.Query;
 @SuppressWarnings("serial")
 public class HotelDataProvider extends AbstractBackEndDataProvider<Hotel, List<String>> {
 	
-	private ApplicationServiceImpl service;
+	private ApplicationService service;
 
 	public HotelDataProvider() {
 			service = ServiceFactory.getApplicationServiceImpl();
