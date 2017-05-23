@@ -48,19 +48,23 @@ public class CategoriesView extends VerticalLayout implements View {
     private void setUpCategoryForms() {
         createCategory = new Button(VaadinIcons.PLUS);
         createCategory.setDescription("Create new category");
+        createCategory.addStyleName("create_category");
         createCategory.addClickListener(event -> {
             clearGridSelection();
             Set<Category> newSet = new HashSet<>();
-            newSet.add(new Category("Default Name"));
+            newSet.add(new Category(""));
             categoryForm.setCategories(newSet);
+            manageButtons(true, false);
         });
         editCategory = new Button(VaadinIcons.CHECK);
         editCategory.setClickShortcut(ShortcutAction.KeyCode.ENTER);
         editCategory.setDescription("Save/Update category");
+        editCategory.addStyleName("edit_category");
         editCategory.addClickListener(e -> categoryForm.save() );
         deleteCategory = new Button(VaadinIcons.TRASH);
         deleteCategory.setDescription("Delete category");
         deleteCategory.addClickListener(e -> categoryForm.delete());
+        deleteCategory.addStyleName("delete_category");
 		categoryForm.setVisible(false);
 		manageButtons(false, false);
 	}

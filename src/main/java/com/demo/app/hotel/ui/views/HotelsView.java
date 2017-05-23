@@ -75,6 +75,7 @@ public class HotelsView extends VerticalLayout implements View {
 
 		addHotel = new Button(VaadinIcons.PLUS);
 		addHotel.setDescription("Create new hotel");
+		addHotel.addStyleName("add_hotel");
 		addHotel.addClickListener(e -> {
 			grid.asMultiSelect().clear();
 			Set<Hotel> newSet = new HashSet<>();
@@ -85,9 +86,11 @@ public class HotelsView extends VerticalLayout implements View {
 		deleteHotel = new Button(VaadinIcons.TRASH);
 		deleteHotel.setDescription("Delete selected hotels");
 		deleteHotel.addClickListener(e -> hotelForm.delete());
+		deleteHotel.addStyleName("delete_hotel");
 		saveHotel = new Button(VaadinIcons.CHECK);
 		saveHotel.setDescription("Save/Edit single hotel");
 		saveHotel.addClickListener(e -> hotelForm.save());
+		saveHotel.addStyleName("save_hotel");
 
 		bulk = new Button("Bulk Update");
 		bulk.setDescription("Bulk Update");
@@ -114,6 +117,7 @@ public class HotelsView extends VerticalLayout implements View {
 
 		clearFilter = new Button(VaadinIcons.CLOSE);
 		clearFilter.setDescription("Clear the current filter");
+		clearFilter.addStyleName("clear_filter");
 		clearFilter.addClickListener(e -> {
 			filterAddress.clear();
 			filterName.clear();
